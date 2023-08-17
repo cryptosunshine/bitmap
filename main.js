@@ -20,11 +20,11 @@
 
   L.GridLayer.CanvasCircles = L.GridLayer.extend({
     options: {
-      minZoom: 4,
+      minZoom: 0,
       maxZoom: 10,
       // bounds,
       noWrap: false,
-      tileSize: 100
+      // tileSize: 100
     },
     
     createTile: function (coords, done) {
