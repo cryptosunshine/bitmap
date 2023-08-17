@@ -151,7 +151,7 @@ $(function () {
       // pass the tile to the done() callback
       setTimeout(function () {
         done(error, tile);
-      }, 1000);
+      }, 1);
 
       return tile;
     }
