@@ -1,30 +1,87 @@
-﻿$(function () {
-  var arr = [];
-  for (let i = 0; i <= 800000; i++) {
-    arr.push(i % 13)
+﻿var arr = [];
+for (let i = 0; i <= 800000; i++) {
+  arr.push(Math.round(Math.random()))
+}
+$(function () {
+
+  function generateCanvasWithGrid(count, numbers, lock) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+
+    const gridSize = Math.ceil(Math.sqrt(count));
+    const cellSize = 256 / gridSize;
+
+    const ctx = canvas.getContext('2d');
+    if (arr[numbers[0]] == 1) {
+      ctx.fillStyle = 'green'
+    } else if (arr[numbers[0]] == 0) {
+      ctx.fillStyle = 'orange'
+    } else if (arr[numbers[0]] == undefined) {
+      ctx.fillStyle = 'orange'
+    }
+    ctx.strokeStyle = 'black'; // Set border color
+    ctx.font = '10px sans-serif'; // Set font size and family
+    ctx.textAlign = 'center'; // Center the text
+    ctx.textBaseline = 'middle'; // Align the middle of the text with the cell's middle
+
+    const borderOffset = 0.5; // Adjust for the 0.5px border
+
+    for (let i = 0; i < count; i++) {
+      const row = Math.floor(i / gridSize);
+      const col = i % gridSize;
+
+      const x = col * cellSize + borderOffset;
+      const y = row * cellSize + borderOffset;
+
+      ctx.fillRect(x, y, cellSize - borderOffset * 2, cellSize - borderOffset * 2);
+      ctx.strokeRect(x, y, cellSize - borderOffset * 2, cellSize - borderOffset * 2); // Draw border
+
+      // Draw number
+      const number = numbers[i];
+
+
+      // ctx.fillStyle = arr[number] == 1 ? 'green' : 'orange'; // Reset fill color for the next cell
+      if (arr[number] == 1) {
+        if (lock) {
+          ctx.fillStyle = 'black'; // Set text color
+          ctx.fillText(number, x + cellSize / 2, y + cellSize / 2); // Center the text in the cell
+        }
+        ctx.fillStyle = 'green'
+      } else if (arr[number] == 0) {
+        if (lock) {
+          ctx.fillStyle = 'black'; // Set text color
+          ctx.fillText(number, x + cellSize / 2, y + cellSize / 2); // Center the text in the cell
+        }
+        ctx.fillStyle = 'orange'
+      } else if (arr[number] == undefined) {
+        ctx.fillStyle = 'orange'
+      }
+    }
+
+    return canvas;
   }
+
+
+
+
   var timer = 0;
   var bounds = new L.LatLngBounds(new L.LatLng(-2000, 2000), new L.LatLng(-2000, 2000));
   var map = L.map('mapContainer', {
     crs: L.CRS.Simple,
     // maxBounds: bounds,
+    // zoomAnimation: false, // 地图缩放动画
+    // markerZoomAnimation: false,
     maxBoundsViscosity: 1.0,
   }).setView([0, 0], 0);
 
-  var jsonAvter = {
-    // "10,0,0": "./avtar/shine.png",
-    // "10,1,0": "./avtar/shine.png",
-    // "10,0,1": "./avtar/shine.png",
-    // "10,1,1": "./avtar/shine.png",
-    // "9,0,0": "./avtar/shine.png",
-    // "10,2,0": "./avtar/tom.png",
-    // "10,6,0": "./avtar/jack.png",
-  }
-
   L.GridLayer.CanvasCircles = L.GridLayer.extend({
     options: {
-      minZoom: 0,
+      minZoom: 2,
       maxZoom: 10,
+      minNativeZoom: 0, // 设置最小的本地缩放级别
+      maxNativeZoom: 7, // 设置最大的本地缩放级别
+      pane: 'tilePane',
       // bounds,
       noWrap: false,
       // tileSize: 100
@@ -36,18 +93,6 @@
       const y = coords.y;
       const z = coords.z;
       const gBlocks = Math.pow(4, z); // 每层的块数量
-
-
-      const total = 1048576; // 总块数 1024 * 1024
-
-      const allBlock = Math.pow(2, z) * y + x; // 每块从左到右，从上到下的编号
-
-
-      const xStart = 1024 / Math.pow(2, z) * x * (y + 1);
-      const xEnd = 1024 / Math.pow(2, z) * x + 1024 / Math.pow(2, z) - 1 * (y + 1);
-
-      const yStart = 1024 * 1024 / Math.pow(2, z) * y;
-      const yEnd = 1024 * (y + 1) * (1024 / Math.pow(2, z) * x + 1024 / Math.pow(2, z) - 1);
       // 超出范围
       if (x < 0 || y < 0 || x >= gBlocks / x || y >= gBlocks / y) {
         var tile = document.createElement('div');
@@ -57,51 +102,56 @@
         return tile;
       }
 
-      let key = z + ',' + x + ',' + y;
 
-      // 头像匹配
-      if (jsonAvter[key]) {
-        var tileHtml = `<div class='block'>
-          <img src='${jsonAvter[key]}'/>
-        </div>`;
-        var tile = document.createElement('div');
-        tile.innerHTML = tileHtml;
 
-        // var ctx = tile.getContext('2d');
-        setTimeout(function () {
-          done(null, tile);
-        }, timer);
+      // const gBlocks = Math.pow(4, z); // 每层的块数量
+      const total = 1048576; // 总块数 1024 * 1024
+      const allBlock = Math.pow(2, z) * y + x; // 每块从左到右，从上到下的编号
+      // let block = total / gBlocks * allBlock;
 
-        return tile;
+
+
+      // let block = total / gBlocks * allBlock;
+      // let color = z == 10 && arr[block] == 1 ? 'green' : 'orange';
+
+      // var tileHtml = `
+      //   <div class='block' x='`+ x + `' style="background: ${color}">
+      //   ${z == 10
+      //     ?
+      //     `<div class='font'>${block}</div>
+      //         <div class='font'>${z},${x},${y}</div>`
+      //     :
+      //     `<div>
+      //       <div class='font'>${z},${x},${y}</div>
+      //     </div>`} `;
+
+      var error;
+
+      // create a <canvas> element for drawing
+      var tile = L.DomUtil.create('canvas', 'leaflet-tile');
+
+      // setup tile width and height according to the options
+      var size = this.getTileSize();
+      tile.width = size.x;
+      tile.height = size.y;
+
+      // get the canvas 2d context
+      var ctx = tile.getContext('2d');
+      let arr = [];
+      for (let o = 0; o < 64; o++) {
+        let block = total / gBlocks * allBlock + o;
+        arr.push(block)
       }
-      // ${z == 10 ? `<p class='font'>block: ${block}</p>` : ``}
-      // <p class='font'>position: ${z},${x},${y}</p>
-      let block = total / gBlocks * allBlock;
-      let color = z == 10 && arr[block] == 1 ? 'green' : 'orange';
+      // generate canvas with grid using your method
+      var canvasWithGrid = generateCanvasWithGrid(64, arr, z == 7); // Change the count as needed
 
-      var tileHtml = `
-        <div class='block' x='`+ x + `' style="background: ${color}">
-        ${z == 10
-          ?
-          `<div class='font'>${block}</div>
-              <div class='font'>${z},${x},${y}</div>`
-          :
-          `<div>
-            <div class='positionFont topleft'>${xStart}</div>
-            <div class='positionFont topright'>${xEnd}</div>
-            <div class='positionFont bottomleft'>${yEnd}</div>
-            <div class='font'>${z},${x},${y}</div>
-          </div>`} `;
-      // <div class='font'>${xStart} - ${xEnd}</div>
-      //    <div class='font'>${yStart} - ${yEnd}</div>
-      //    <div class='font'>${z},${x},${y}</div>
-      var tile = document.createElement('div');
+      // draw the generated canvas onto the tile's context
+      ctx.drawImage(canvasWithGrid, 0, 0);
 
-      tile.innerHTML = tileHtml;
-
+      // pass the tile to the done() callback
       setTimeout(function () {
-        done(null, tile);
-      }, timer);
+        done(error, tile);
+      }, 1000);
 
       return tile;
     }
@@ -115,7 +165,14 @@
   map.on('click', function (event) {
     // 在这里处理点击事件
     console.log('Map clicked at:', event);
+    // map.panTo(new L.LatLng(event.latlng.lat, event.latlng.lng));
   });
+  console.log(map.getSize())
+  setTimeout(() => {
+    map.panTo(new L.LatLng(-130, 130));
+  }, 300);
+
+
 
   var cavasGridLayer = L.gridLayer.canvasCircles();
   map.addLayer(cavasGridLayer);
