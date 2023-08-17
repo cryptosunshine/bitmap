@@ -1,6 +1,6 @@
 ﻿$(function () {
   
-  var timer = 50;
+  var timer = 0;
   var bounds = new L.LatLngBounds(new L.LatLng(-2000, 2000), new L.LatLng(-2000, 2000));
   var map = L.map('mapContainer', {
     crs: L.CRS.Simple,
@@ -9,13 +9,13 @@
   }).setView([0, 0], 0);
 
   var jsonAvter = {
-    "10,0,0": "/avtar/shine.png",
-    "10,1,0": "/avtar/shine.png",
-    "10,0,1": "/avtar/shine.png",
-    "10,1,1": "/avtar/shine.png",
-    "9,0,0": "/avtar/shine.png",
-    "10,2,0": "/avtar/tom.png",
-    "10,6,0": "/avtar/jack.png",
+    "10,0,0": "./avtar/shine.png",
+    "10,1,0": "./avtar/shine.png",
+    "10,0,1": "./avtar/shine.png",
+    "10,1,1": "./avtar/shine.png",
+    "9,0,0": "./avtar/shine.png",
+    "10,2,0": "./avtar/tom.png",
+    "10,6,0": "./avtar/jack.png",
   }
 
   L.GridLayer.CanvasCircles = L.GridLayer.extend({
@@ -24,7 +24,7 @@
       maxZoom: 10,
       // bounds,
       noWrap: false,
-      tileSize: 50
+      tileSize: 100
     },
     
     createTile: function (coords, done) {
@@ -59,6 +59,7 @@
         var tile = document.createElement('div');
         tile.innerHTML = tileHtml;
   
+        // var ctx = tile.getContext('2d');
         setTimeout(function () {
           done(null, tile);
         }, timer);
