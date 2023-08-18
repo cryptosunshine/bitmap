@@ -4,36 +4,36 @@ for (let i = 0; i <= 800000; i++) {
 }
 $(function () {
 
-  function generateCanvasWithGrid(count, numbers, lock) {
+  function generateCanvasWithGrid(count, numbers, z) {
     const canvas = document.createElement('canvas');
-    const canvasSize = 256;
-    const gridSize = Math.ceil(Math.sqrt(count));
-    const cellSize = canvasSize / gridSize;
+    const canvasSize = count;
+    const gridSize = 256;
+    const cellSize = gridSize / canvasSize;
   
     // Set the canvas size to a higher resolution
-    canvas.width = canvasSize * 4;
-    canvas.height = canvasSize * 4;
+    canvas.width = canvasSize * Math.pow(2, z - 2);
+    canvas.height = canvasSize * Math.pow(2, z - 2);
   
     const ctx = canvas.getContext('2d');
-    ctx.scale(4, 4); // Scale up the canvas
+    ctx.scale(Math.pow(2, z - 2), Math.pow(2, z - 2)); // Scale up the canvas
   
     const borderOffset = 0.1; // Adjust for the 0.5px border
   
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < canvasSize * canvasSize; i++) {
       const row = Math.floor(i / gridSize);
       const col = i % gridSize;
   
       const x = col * cellSize + borderOffset;
       const y = row * cellSize + borderOffset;
   
-      ctx.fillStyle = arr[numbers[i]] == 1 ? 'green' : 'orange';
+      ctx.fillStyle = Math.round(Math.random()) % 2 == 1 ? 'green' : 'orange';
       ctx.fillRect(x, y, cellSize - borderOffset * 2, cellSize - borderOffset * 2);
-      ctx.strokeRect(x, y, cellSize - borderOffset * 2, cellSize - borderOffset * 2); // Draw border
+      // ctx.strokeRect(x, y, cellSize - borderOffset * 2, cellSize - borderOffset * 2); // Draw border
   
       // Draw number
       const number = numbers[i];
   
-      if (lock) {
+      if (z == 7) {
         ctx.fillStyle = 'black'; // Set text color
         ctx.font = '3px sans-serif'; // Set font size and family
         ctx.textAlign = 'center'; // Center the text
@@ -62,9 +62,9 @@ $(function () {
   L.GridLayer.CanvasCircles = L.GridLayer.extend({
     options: {
       minZoom: 2,
-      maxZoom: 8,
+      maxZoom: 6,
       minNativeZoom: 0, // 设置最小的本地缩放级别
-      maxNativeZoom: 7, // 设置最大的本地缩放级别
+      maxNativeZoom: 10, // 设置最大的本地缩放级别
       pane: 'tilePane',
       // bounds,
       noWrap: false,
@@ -72,7 +72,7 @@ $(function () {
     },
 
     createTile: function (coords, done) {
-      // 我使用了一个公式，但是不知道为什么，这个公式是错的，每个块的编号范围是错的
+
       const x = coords.x;
       const y = coords.y;
       const z = coords.z;
@@ -122,12 +122,14 @@ $(function () {
       // get the canvas 2d context
       var ctx = tile.getContext('2d');
       let arr = [];
+      const n = 256 / Math.pow(2, z - 2);
+      console.log(n, z)
       for (let o = 0; o < 256; o++) {
         let block = total / gBlocks * allBlock + o;
         arr.push(block)
       }
       // generate canvas with grid using your method
-      var canvasWithGrid = generateCanvasWithGrid(256, arr, z == 7); // Change the count as needed
+      var canvasWithGrid = generateCanvasWithGrid(n, arr, z); // Change the count as needed
 
       // draw the generated canvas onto the tile's context
       ctx.drawImage(canvasWithGrid, 0, 0);
