@@ -6,61 +6,45 @@ $(function () {
 
   function generateCanvasWithGrid(count, numbers, lock) {
     const canvas = document.createElement('canvas');
-    canvas.width = 256;
-    canvas.height = 256;
-
+    const canvasSize = 256;
     const gridSize = Math.ceil(Math.sqrt(count));
-    const cellSize = 256 / gridSize;
-
+    const cellSize = canvasSize / gridSize;
+  
+    // Set the canvas size to a higher resolution
+    canvas.width = canvasSize * 4;
+    canvas.height = canvasSize * 4;
+  
     const ctx = canvas.getContext('2d');
-    if (arr[numbers[0]] == 1) {
-      ctx.fillStyle = 'green'
-    } else if (arr[numbers[0]] == 0) {
-      ctx.fillStyle = 'orange'
-    } else if (arr[numbers[0]] == undefined) {
-      ctx.fillStyle = 'orange'
-    }
-    ctx.strokeStyle = 'black'; // Set border color
-    ctx.font = '10px sans-serif'; // Set font size and family
-    ctx.textAlign = 'center'; // Center the text
-    ctx.textBaseline = 'middle'; // Align the middle of the text with the cell's middle
-
-    const borderOffset = 0.5; // Adjust for the 0.5px border
-
+    ctx.scale(4, 4); // Scale up the canvas
+  
+    const borderOffset = 0.1; // Adjust for the 0.5px border
+  
     for (let i = 0; i < count; i++) {
       const row = Math.floor(i / gridSize);
       const col = i % gridSize;
-
+  
       const x = col * cellSize + borderOffset;
       const y = row * cellSize + borderOffset;
-
+  
+      ctx.fillStyle = arr[numbers[i]] == 1 ? 'green' : 'orange';
       ctx.fillRect(x, y, cellSize - borderOffset * 2, cellSize - borderOffset * 2);
       ctx.strokeRect(x, y, cellSize - borderOffset * 2, cellSize - borderOffset * 2); // Draw border
-
+  
       // Draw number
       const number = numbers[i];
-
-
-      // ctx.fillStyle = arr[number] == 1 ? 'green' : 'orange'; // Reset fill color for the next cell
-      if (arr[number] == 1) {
-        if (lock) {
-          ctx.fillStyle = 'black'; // Set text color
-          ctx.fillText(number, x + cellSize / 2, y + cellSize / 2); // Center the text in the cell
-        }
-        ctx.fillStyle = 'green'
-      } else if (arr[number] == 0) {
-        if (lock) {
-          ctx.fillStyle = 'black'; // Set text color
-          ctx.fillText(number, x + cellSize / 2, y + cellSize / 2); // Center the text in the cell
-        }
-        ctx.fillStyle = 'orange'
-      } else if (arr[number] == undefined) {
-        ctx.fillStyle = 'orange'
+  
+      if (lock) {
+        ctx.fillStyle = 'black'; // Set text color
+        ctx.font = '3px sans-serif'; // Set font size and family
+        ctx.textAlign = 'center'; // Center the text
+        ctx.textBaseline = 'middle'; // Align the middle of the text with the cell's middle
+        ctx.fillText(number.toString(), x + cellSize / 2, y + cellSize / 2); // Center the text in the cell
       }
     }
-
+  
     return canvas;
   }
+  
 
 
 
@@ -78,7 +62,7 @@ $(function () {
   L.GridLayer.CanvasCircles = L.GridLayer.extend({
     options: {
       minZoom: 2,
-      maxZoom: 10,
+      maxZoom: 9,
       minNativeZoom: 0, // 设置最小的本地缩放级别
       maxNativeZoom: 7, // 设置最大的本地缩放级别
       pane: 'tilePane',
@@ -138,12 +122,12 @@ $(function () {
       // get the canvas 2d context
       var ctx = tile.getContext('2d');
       let arr = [];
-      for (let o = 0; o < 64; o++) {
+      for (let o = 0; o < 256; o++) {
         let block = total / gBlocks * allBlock + o;
         arr.push(block)
       }
       // generate canvas with grid using your method
-      var canvasWithGrid = generateCanvasWithGrid(64, arr, z == 7); // Change the count as needed
+      var canvasWithGrid = generateCanvasWithGrid(256, arr, z == 7); // Change the count as needed
 
       // draw the generated canvas onto the tile's context
       ctx.drawImage(canvasWithGrid, 0, 0);
