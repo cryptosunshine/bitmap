@@ -123,7 +123,7 @@ $(function () {
       var ctx = tile.getContext('2d');
       let arr = [];
       const n = 256 / Math.pow(2, z - 2);
-      console.log(n, z)
+
       for (let o = 0; o < 256; o++) {
         let block = total / gBlocks * allBlock + o;
         arr.push(block)
