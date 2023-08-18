@@ -62,7 +62,7 @@ $(function () {
   L.GridLayer.CanvasCircles = L.GridLayer.extend({
     options: {
       minZoom: 2,
-      maxZoom: 9,
+      maxZoom: 8,
       minNativeZoom: 0, // 设置最小的本地缩放级别
       maxNativeZoom: 7, // 设置最大的本地缩放级别
       pane: 'tilePane',
