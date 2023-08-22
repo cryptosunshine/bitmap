@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GridLayer Test</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        html,
+        body,
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+
+    <script>
+
+        function generateCanvasWithGrid(tile, count, z) {
+            const canvas = document.createElement('canvas');
+            const gridSize = tile.width; // 格子宽度
+            const cellSize = gridSize / count; // 格子大小
+
+            // Set the canvas size to a higher resolution
+            canvas.width = tile.width; // canvas 宽度
+            canvas.height = tile.height; // canvas 高度
+
+            const ctx = canvas.getContext('2d');
+            // ctx.scale(Math.pow(2, z - 2), Math.pow(2, z - 2));
+
+            const borderOffset = 1; // Adjust for the 0.5px border
+
+            for (let i = 0; i < count * count * Math.pow(2, z + 3 - 2); i++) {
+                const row = Math.floor(i / gridSize);
+                const col = i % gridSize;
+
+                const x = col * cellSize + borderOffset;
+                const y = row * cellSize + borderOffset;
+            
+                ctx.fillStyle = "#66BD89";
+                ctx.fillRect(x, y, cellSize - borderOffset * 2, cellSize - borderOffset * 2);
+            }
+
+            return canvas;
+        }
+
+
+        var map = new L.Map('map', { center: [10, 0], zoom: 2 });
+
+        var tiles = new L.GridLayer({
+            zIndex: 1,
+        });
+        tiles.createTile = function (coords) {
+            var tile = L.DomUtil.create('canvas', 'leaflet-tile');
+            var ctx = tile.getContext('2d');
+            var size = this.getTileSize()
+            tile.width = size.x
+            tile.height = size.y
+
+            // console.log(tile.width, tile.height)
+            // console.log(coords.x, coords.y, coords.z)
+
+            // calculate projection coordinates of top left tile pixel
+            var nwPoint = coords.scaleBy(size)
+
+            // calculate geographic coordinates of top left tile pixel
+            var nw = map.unproject(nwPoint, coords.z)
+
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, size.x, 50);
+            ctx.fillStyle = 'black';
+            ctx.fillText('x: ' + coords.x + ', y: ' + coords.y + ', zoom: ' + coords.z, 20, 20);
+            ctx.fillText('lat: ' + nw.lat + ', lon: ' + nw.lng, 20, 40);
+            ctx.strokeStyle = 'red';
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(size.x - 1, 0);
+            ctx.lineTo(size.x - 1, size.y - 1);
+            ctx.lineTo(0, size.y - 1);
+            ctx.closePath();
+            ctx.stroke();
+
+            const x = coords.x;
+            const y = coords.y;
+            const z = coords.z;
+
+            const n = 256 / Math.pow(2, z + 3 - 2);
+            // // const n = 8
+            let canvasWithGrid = generateCanvasWithGrid(tile, n, z); // Change the count as needed
+
+            ctx.drawImage(canvasWithGrid, 0, 0);
+
+            return tile;
+        }
+
+        L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data &copy; <a href="http://www.osm.org">OpenStreetMap</a>'
+        }).addTo(map)
+
+        tiles.addTo(map)
+    </script>
+</body>
+
+</html>

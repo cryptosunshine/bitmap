@@ -6,7 +6,7 @@ body {
   height: 100%;
   overflow: hidden;
   font-family: Arial, Helvetica, sans-serif;
-  background: #000000;
+  background: #EDF5EF;
 }
 #mapContainer {
   width: 100%;
@@ -56,7 +56,7 @@ body {
   position: relative;
 }
 .block:hover{
-  background-color: #000;
+  background-color: #EDF5EF;
 }
 .font{
   color: #fff;
@@ -86,4 +86,9 @@ body {
 .block img{
   width: 100%;
   height: 100%;
+}
+
+.leaflet-container {
+  background: #EDF5EF;
+  outline-offset: 1px;
 }
