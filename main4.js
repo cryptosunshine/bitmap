@@ -4,6 +4,16 @@ for (let i = 0; i <= 800000; i++) {
   arr.push(Math.round(Math.random()))
 }
 
+var bytesToHex = function (bytes) {
+  for (var hex = [], i = 0; i < bytes.length; i++) {
+      hex.push((bytes[i] >>> 4).toString(16));
+      hex.push((bytes[i] & 0xF).toString(16));
+  }
+  return hex.join("");
+}
+const b = bytesToHex(maps.result.bitMap.data)
+
+console.log(b.length)
 
 $(function () {
 
@@ -42,7 +52,7 @@ $(function () {
     const gridSize = TileSize; // 格子宽度
     const cellSize = gridSize / n; // 格子大小
 
-    console.log(z, n, gridSize, cellSize)
+    // console.log(z, n, gridSize, cellSize)
 
 
     canvas.width = TileSize
@@ -55,7 +65,7 @@ $(function () {
         for (let j = 0; j < n; j++) {
           const row = i;
           const col = j;
-
+          
           const x = col * cellSize + borderOffset;
           const y = row * cellSize + borderOffset;
 
@@ -72,6 +82,7 @@ $(function () {
       for (let j = 0; j < n; j++) {
         const row = i;
         const col = j;
+        // borderOffset = 0
 
         const x = col * cellSize + borderOffset;
         const y = row * cellSize + borderOffset;
@@ -123,10 +134,11 @@ $(function () {
 
 
   var timer = 0;
-  // var bounds = new L.LatLngBounds(new L.LatLng(-2000, 2000), new L.LatLng(-2000, 2000));
+  var bounds = new L.LatLngBounds(new L.LatLng(50, -120), new L.LatLng(-4200, 1200)); // 边界0,0  -4096,1024
   var map = L.map('mapContainer', {
     crs: L.CRS.Simple,
-    // maxBounds: bounds,
+    maxBounds: bounds,
+    zoomControl: false,
     // zoomAnimation: false, // 地图缩放动画
     // markerZoomAnimation: false,
     maxBoundsViscosity: 1.0,
@@ -232,14 +244,40 @@ $(function () {
   // }).addTo(map)
 
   map.on('click', function (event) {
-    // 在这里处理点击事件
-    console.log('Map clicked at:', event);
-    // map.panTo(new L.LatLng(event.latlng.lat, event.latlng.lng));
+
+    var layerPoint = event.layerPoint;
+
+    // 将像素坐标转换为地理坐标
+    var latlng = map.layerPointToLatLng(layerPoint);
+  
+    // 获取瓦片坐标（coords）
+    var coords = {
+      x: Math.floor(latlng.lng),
+      y: Math.floor(latlng.lat),
+      z: map.getZoom()
+    };
+    
+    const block = Math.trunc(Math.trunc(coords.y % 2 == 0 ? Math.abs(coords.y + 1)/ 2 : Math.abs(coords.y)/ 2) * 512 + coords.x / 2)
+    console.log('Clicked at:', coords);
+    console.log('Clicked at:', block);
   });
+
+  map.on('zoomend', function(event) {
+    let zoomLevel = map.getZoom();
+
+    let gap = [50, 50, 40, 30, 20, 10]; 
+    console.log()
+    // 设置边界
+    map.setMaxBounds(new L.LatLngBounds(
+      new L.LatLng(0 + gap[zoomLevel], 0 - gap[zoomLevel]),
+      new L.LatLng(-4096 - gap[zoomLevel], 1024 + gap[zoomLevel]))
+    )
+  });
+
   console.log(map.getSize())
-  // setTimeout(() => {
-  //   map.panTo(new L.LatLng(-130, 130));
-  // }, 300);
+  setTimeout(() => {
+    // map.panTo(new L.LatLng(-230, 130));
+  }, 1000);
 
 
 
