@@ -6,8 +6,8 @@ for (let i = 0; i <= 800000; i++) {
 
 var bytesToHex = function (bytes) {
   for (var hex = [], i = 0; i < bytes.length; i++) {
-      hex.push((bytes[i] >>> 4).toString(16));
-      hex.push((bytes[i] & 0xF).toString(16));
+    hex.push((bytes[i] >>> 4).toString(16));
+    hex.push((bytes[i] & 0xF).toString(16));
   }
   return hex.join("");
 }
@@ -65,7 +65,7 @@ $(function () {
         for (let j = 0; j < n; j++) {
           const row = i;
           const col = j;
-          
+
           const x = col * cellSize + borderOffset;
           const y = row * cellSize + borderOffset;
 
@@ -91,7 +91,7 @@ $(function () {
         // ctx.fillStyle = "#66BD89";
         ctx.fillRect(x, y, cellSize - borderOffset * 2, cellSize - borderOffset * 2);
 
-        
+
 
         if (z >= 3) {
           const blockNumber = (row + (n * coords.y)) * 512 + col + (n * coords.x)
@@ -141,7 +141,7 @@ $(function () {
     zoomControl: false,
     // zoomAnimation: false, // 地图缩放动画
     // markerZoomAnimation: false,
-    maxBoundsViscosity: 1.0,
+    maxBoundsViscosity: 0.9, // 控制拖动地图时边界的坚固程度
   }).setView([0, 0], 0);
 
   L.GridLayer.CanvasCircles = L.GridLayer.extend({
@@ -154,6 +154,7 @@ $(function () {
       pane: 'tilePane',
       // bounds,
       noWrap: false,
+
       // tileSize: 100
     },
 
@@ -242,36 +243,61 @@ $(function () {
   //     minZoom: 0,
   //     maxZoom: 5,
   // }).addTo(map)
-
+  let svgPoint = null;
   map.on('click', function (event) {
-
     var layerPoint = event.layerPoint;
-
-    // 将像素坐标转换为地理坐标
     var latlng = map.layerPointToLatLng(layerPoint);
-  
-    // 获取瓦片坐标（coords）
+
     var coords = {
       x: Math.floor(latlng.lng),
       y: Math.floor(latlng.lat),
       z: map.getZoom()
     };
-    
-    const block = Math.trunc(Math.trunc(coords.y % 2 == 0 ? Math.abs(coords.y + 1)/ 2 : Math.abs(coords.y)/ 2) * 512 + coords.x / 2)
+
+    const block = Math.trunc(Math.trunc(coords.y % 2 == 0 ? Math.abs(coords.y + 1) / 2 : Math.abs(coords.y) / 2) * 512 + coords.x / 2)
     console.log('Clicked at:', coords);
     console.log('Clicked at:', block);
+
+    const svgY = coords.y % 2 == 0 ? coords.y + 1 : coords.y; // latlng.lat;
+    const svgX = coords.x % 2 == 0 ? coords.x + 1 : coords.x; // latlng.lng;
+
+    const svgXY = [[svgY + 0.1, svgX - 1], [svgY + 1.1, svgX + 1]];
+    console.log('Svg at:', svgXY)
+
+    var svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svgElement.setAttribute('xmlns', "http://www.w3.org/2000/svg");
+    svgElement.setAttribute('viewBox', "0 0 200 200");
+    svgElement.innerHTML = '<path d="M100 10 L170 190 L30 190 Z" fill="#2452f8" />';
+
+    if (svgPoint) {
+      map.removeLayer(svgPoint);
+    }
+
+    svgPoint = L.svgOverlay(svgElement, svgXY).addTo(map);
+
+    Toastify({
+
+      text: block,
+      
+      duration: 3000
+      
+      }).showToast();
   });
 
-  map.on('zoomend', function(event) {
+  map.on('zoomend', function (event) {
     let zoomLevel = map.getZoom();
 
-    let gap = [50, 50, 40, 30, 20, 10]; 
-    console.log()
+    let gap = [50, 50, 40, 30, 20, 10];
+    console.log(zoomLevel)
     // 设置边界
     map.setMaxBounds(new L.LatLngBounds(
       new L.LatLng(0 + gap[zoomLevel], 0 - gap[zoomLevel]),
       new L.LatLng(-4096 - gap[zoomLevel], 1024 + gap[zoomLevel]))
     )
+    // map.fitBounds([
+    //   [0 + gap[zoomLevel], 0 - gap[zoomLevel]],
+    //   [-4096 - gap[zoomLevel], 1024 + gap[zoomLevel]]
+    // ]);
   });
 
   console.log(map.getSize())
