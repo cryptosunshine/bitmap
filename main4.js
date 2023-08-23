@@ -114,7 +114,7 @@ $(function () {
             ctx.fillRect(x, y, cellSize - borderOffset * 2, cellSize - borderOffset * 2);
           }
 
-
+          
         }
       }
       return canvas
@@ -139,29 +139,24 @@ $(function () {
 
 
 
-        if (z == 4 && blockNumber <= 800000) {
+        if (z >= 4 && blockNumber <= 800000) {
           ctx.fillStyle = 'black'; // Set text color
-          ctx.font = '6px sans-serif'; // Set font size and family
+          if (z == 4) {
+            ctx.font = '6px sans-serif'; // Set font size and family
+          } else if (z == 5) {
+            ctx.font = '12px sans-serif'; // Set font size and family
+          } else if (z == 6) {
+            ctx.font = '24px sans-serif'; // Set font size and family
+          }
           ctx.textAlign = 'center'; // Center the text
           ctx.textBaseline = 'middle'; // Align the middle of the text with the cell's middle
           ctx.fillText(blockNumber, x + cellSize / 2, y + cellSize / 2); // Center the text in the cell
-        }
-        if (z == 5 && blockNumber <= 800000) {
-
-          ctx.fillStyle = 'black'; // Set text color
-          ctx.font = '12px sans-serif'; // Set font size and family
-          ctx.textAlign = 'center'; // Center the text
-          ctx.textBaseline = 'middle'; // Align the middle of the text with the cell's middle
-          ctx.fillText(blockNumber, x + cellSize / 2, y + cellSize / 2); // Center the text in the cell
-        }
-
-        if (z == 6 && blockNumber <= 800000) {
-
-          ctx.fillStyle = 'black'; // Set text color
-          ctx.font = '24px sans-serif'; // Set font size and family
-          ctx.textAlign = 'center'; // Center the text
-          ctx.textBaseline = 'middle'; // Align the middle of the text with the cell's middle
-          ctx.fillText(blockNumber, x + cellSize / 2, y + cellSize / 2); // Center the text in the cell
+          const img = new Image();
+          img.src = './avtar/shine.png';
+          ctx.drawImage(img, 0, 0, canvas.width / 2, canvas.height / 2);
+          ctx.drawImage(img, 0, canvas.width / 2, canvas.width / 2, canvas.height / 2);
+          ctx.drawImage(img, canvas.width / 2, 0, canvas.width / 2, canvas.height / 2);
+          ctx.drawImage(img, canvas.width / 2, canvas.width / 2, canvas.width / 2, canvas.height / 2);
         }
       }
     }
@@ -378,7 +373,7 @@ $(function () {
   map.on('zoomend', function (event) {
     let zoomLevel = map.getZoom();
 
-    let gap = [50, 50, 40, 30, 20, 10];
+    let gap = [50, 50, 40, 30, 20, 10, 10];
     console.log(zoomLevel)
     // 设置边界
     map.setMaxBounds(new L.LatLngBounds(
