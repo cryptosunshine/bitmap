@@ -69,9 +69,13 @@ $(function () {
           const x = col * cellSize + borderOffset;
           const y = row * cellSize + borderOffset;
 
-          ctx.fillStyle = Math.round(Math.random() * 100) % 100 == 1 ? '#66BD89' : '#D8E4DD';
-          // ctx.fillStyle = "#66BD89";
-          ctx.fillRect(x, y, cellSize - borderOffset * 2, cellSize - borderOffset * 2);
+          const blockNumber = (row + (n * coords.y)) * 512 + col + (n * coords.x)
+          if (blockNumber <= 800000) {
+            ctx.fillStyle = Math.round(Math.random() * 100) % 100 == 1 ? '#66BD89' : '#D8E4DD';
+            // ctx.fillStyle = "#66BD89";
+            ctx.fillRect(x, y, cellSize - borderOffset * 2, cellSize - borderOffset * 2);
+          }
+
 
         }
       }
@@ -87,14 +91,19 @@ $(function () {
         const x = col * cellSize + borderOffset;
         const y = row * cellSize + borderOffset;
 
-        ctx.fillStyle = 1 % 2 == 1 ? '#66BD89' : '#D8E4DD';
-        // ctx.fillStyle = "#66BD89";
-        ctx.fillRect(x, y, cellSize - borderOffset * 2, cellSize - borderOffset * 2);
+        const blockNumber = (row + (n * coords.y)) * 512 + col + (n * coords.x)
+
+        if (blockNumber <= 800000) {
+          ctx.fillStyle = 1 % 2 == 1 ? '#66BD89' : '#D8E4DD';
+          // ctx.fillStyle = "#66BD89";
+          ctx.fillRect(x, y, cellSize - borderOffset * 2, cellSize - borderOffset * 2);
+        }
 
 
 
-        if (z >= 3) {
-          const blockNumber = (row + (n * coords.y)) * 512 + col + (n * coords.x)
+
+        if (z >= 3 && blockNumber <= 800000) {
+
           ctx.fillStyle = 'black'; // Set text color
           ctx.font = '10px sans-serif'; // Set font size and family
           ctx.textAlign = 'center'; // Center the text
@@ -278,11 +287,13 @@ $(function () {
     Toastify({
 
       text: block,
-      
+
       duration: 3000
-      
-      }).showToast();
+
+    }).showToast();
   });
+
+
 
   map.on('zoomend', function (event) {
     let zoomLevel = map.getZoom();
@@ -303,6 +314,21 @@ $(function () {
   console.log(map.getSize())
   setTimeout(() => {
     // map.panTo(new L.LatLng(-230, 130));
+    let images = ['./avtar/shine.png', './avtar/jack.png', './avtar/tom.png']
+    // Add multiple random image overlays to the map
+    for (var i = 0; i < 1000; i++) { 
+      let img = images[Math.floor(Math.random() * 3)]
+      // Generate random coordinates
+      var size = Math.trunc(parseInt(Math.random() * 20 - 2));
+      var randomX1 = Math.trunc(parseInt(Math.random() * 1000));
+      var randomY1 = - parseInt(Math.random() * 1520 + 20);
+      var randomX2 = randomX1 + size;
+      var randomY2 = randomY1 + size;
+    
+      // Create and add image overlay with random coordinates
+      L.imageOverlay(img, [[randomY1, randomX1], [randomY2, randomX2]]).addTo(map);
+    }
+
   }, 1000);
 
 
