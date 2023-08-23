@@ -22,7 +22,7 @@ function imageOverlay() {
   for (var i = 0; i < 1000; i++) {
     let img = images[Math.floor(Math.random() * 3)]
     // Generate random coordinates
-    var size = Math.trunc(parseInt(Math.random() * 25 - 2));
+    var size = Math.trunc(parseInt(Math.random() * 21 + 2));
     var randomX1 = Math.trunc(parseInt(Math.random() * 1000));
     var randomY1 = - parseInt(Math.random() * 1520 + 20);
     var randomX2 = randomX1 + size;
@@ -83,6 +83,10 @@ $(function () {
       n = 4
       borderOffset = 1
     }
+    else if (z === 6) {
+      n = 2
+      borderOffset = 1
+    }
     const gridSize = TileSize; // 格子宽度
     const cellSize = gridSize / n; // 格子大小
 
@@ -135,11 +139,26 @@ $(function () {
 
 
 
-
-        if (z >= 3 && blockNumber <= 800000) {
+        if (z == 4 && blockNumber <= 800000) {
+          ctx.fillStyle = 'black'; // Set text color
+          ctx.font = '6px sans-serif'; // Set font size and family
+          ctx.textAlign = 'center'; // Center the text
+          ctx.textBaseline = 'middle'; // Align the middle of the text with the cell's middle
+          ctx.fillText(blockNumber, x + cellSize / 2, y + cellSize / 2); // Center the text in the cell
+        }
+        if (z == 5 && blockNumber <= 800000) {
 
           ctx.fillStyle = 'black'; // Set text color
-          ctx.font = '10px sans-serif'; // Set font size and family
+          ctx.font = '12px sans-serif'; // Set font size and family
+          ctx.textAlign = 'center'; // Center the text
+          ctx.textBaseline = 'middle'; // Align the middle of the text with the cell's middle
+          ctx.fillText(blockNumber, x + cellSize / 2, y + cellSize / 2); // Center the text in the cell
+        }
+
+        if (z == 6 && blockNumber <= 800000) {
+
+          ctx.fillStyle = 'black'; // Set text color
+          ctx.font = '24px sans-serif'; // Set font size and family
           ctx.textAlign = 'center'; // Center the text
           ctx.textBaseline = 'middle'; // Align the middle of the text with the cell's middle
           ctx.fillText(blockNumber, x + cellSize / 2, y + cellSize / 2); // Center the text in the cell
@@ -191,7 +210,7 @@ $(function () {
     options: {
       tileSize: TileSize,
       minZoom: 0,
-      maxZoom: 5,
+      maxZoom: 6,
       minNativeZoom: 0, // 设置最小的本地缩放级别
       // maxNativeZoom: 10, // 设置最大的本地缩放级别
       pane: 'tilePane',
