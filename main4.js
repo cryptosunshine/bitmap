@@ -15,6 +15,40 @@ const b = bytesToHex(maps.result.bitMap.data)
 
 console.log(b.length)
 
+function imageOverlay() {
+  let images = ['./avtar/shine.png', './avtar/jack.png', './avtar/tom.png']
+  let arr = []
+  // Add multiple random image overlays to the map
+  for (var i = 0; i < 1000; i++) {
+    let img = images[Math.floor(Math.random() * 3)]
+    // Generate random coordinates
+    var size = Math.trunc(parseInt(Math.random() * 25 - 2));
+    var randomX1 = Math.trunc(parseInt(Math.random() * 1000));
+    var randomY1 = - parseInt(Math.random() * 1520 + 20);
+    var randomX2 = randomX1 + size;
+    var randomY2 = randomY1 + size;
+    var zoomLevel = 0;
+    if(size > 20){
+      zoomLevel = 0;
+    } else if (size > 15 && size <= 20) {
+      zoomLevel = 1;
+    } else if (size > 10 && size <= 15) {
+      zoomLevel = 2;
+    }else if (size > 5 && size <= 10) {
+      zoomLevel = 3;
+    }else if (size > 2 && size <= 5) {
+      zoomLevel = 4;
+    }else if (size > 0 && size <= 2) {
+      zoomLevel = 5;
+    }
+
+    arr.push([zoomLevel, img, [[randomY1, randomX1], [randomY2, randomX2]]])
+  }
+  return arr;
+}
+
+let mapImgArr = imageOverlay();
+
 $(function () {
 
   const TileSize = 256
@@ -294,6 +328,33 @@ $(function () {
   });
 
 
+  
+  function setImage(zoomLevel) {
+
+    for (let i = 0; i < mapImgArr.length; i++) {
+      let lit = mapImgArr[i]
+      if(zoomLevel < lit[0]) {
+        if (lit[3]) {
+          map.removeLayer(lit[3])
+          mapImgArr[i] = mapImgArr[i].slice(0, mapImgArr[i].length - 1)
+        }
+      }
+
+    }
+
+    for (let i = 0; i < mapImgArr.length; i++) {
+      let lit = mapImgArr[i]
+      if (lit.length == 3) {
+        if(lit[0] <= zoomLevel){
+          let obj = L.imageOverlay(lit[1], lit[2]).addTo(map);
+          mapImgArr[i].push(obj)
+        }
+      }
+
+    }
+
+  }
+
 
   map.on('zoomend', function (event) {
     let zoomLevel = map.getZoom();
@@ -309,26 +370,15 @@ $(function () {
     //   [0 + gap[zoomLevel], 0 - gap[zoomLevel]],
     //   [-4096 - gap[zoomLevel], 1024 + gap[zoomLevel]]
     // ]);
+    setImage(zoomLevel)
   });
 
   console.log(map.getSize())
+
+
   setTimeout(() => {
     // map.panTo(new L.LatLng(-230, 130));
-    let images = ['./avtar/shine.png', './avtar/jack.png', './avtar/tom.png']
-    // Add multiple random image overlays to the map
-    for (var i = 0; i < 1000; i++) { 
-      let img = images[Math.floor(Math.random() * 3)]
-      // Generate random coordinates
-      var size = Math.trunc(parseInt(Math.random() * 20 - 2));
-      var randomX1 = Math.trunc(parseInt(Math.random() * 1000));
-      var randomY1 = - parseInt(Math.random() * 1520 + 20);
-      var randomX2 = randomX1 + size;
-      var randomY2 = randomY1 + size;
-    
-      // Create and add image overlay with random coordinates
-      L.imageOverlay(img, [[randomY1, randomX1], [randomY2, randomX2]]).addTo(map);
-    }
-
+    setImage(0)
   }, 1000);
 
 
